@@ -1,0 +1,1 @@
+console.log('YouTube评论提取器内容脚本已加载');

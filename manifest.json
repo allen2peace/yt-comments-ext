@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "YouTube评论提取器",
+  "version": "1.0",
+  "description": "从YouTube视频中提取评论",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "https://yt-comments-434608.ue.r.appspot.com/*"
+  ],
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
