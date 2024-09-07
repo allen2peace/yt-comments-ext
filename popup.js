@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             extractButton.style.backgroundColor = '#cccccc';
         } else {
             extractButton.textContent = 'Extract Current Video';
-            extractButton.style.backgroundColor = '#008CBA';
+            extractButton.style.backgroundColor = '#333333';
         }
     });
 
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         extractionView.style.display = 'block';
         
         const loadingText = document.querySelector('#extractionView h2');
-        loadingText.textContent = 'Extracting Comments...';
+        // loadingText.textContent = 'Extracting...';
         
         // Initially hide buttons, only show loading animation
         downloadExcelButton.style.display = 'none';
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingSpinner.style.display = 'none';
                 
                 // Update text
-                loadingText.textContent = 'Completed! Ready to Download';
+                loadingText.textContent = 'Ready to Download';
                 
                 // Show buttons after loading is complete
                 downloadExcelButton.style.display = 'block';
