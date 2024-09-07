@@ -62,33 +62,27 @@
         }
         #downloadButton {
             display: none;
+        }
+        .dropdown-icon, .dropdown, .dropdown-content {
+            display: none;
+        }
+        .action-button {
+            display: block;
+            width: 100%;
             padding: 10px 20px;
+            margin-top: 10px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
             font-size: 16px;
         }
-        .dropdown {
-            position: relative;
-            display: inline-block;
+        #previewExcelButton {
+            background-color: #008CBA;
         }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+        #downloadCSVButton {
+            background-color: #f44336;
         }
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {background-color: #f1f1f1}
-        .show {display:block;}
     </style>
 </head>
 <body>
@@ -106,16 +100,11 @@
     </div>
 
     <div id="extractionView">
-        <h2>正在提取评论...</h2>
+        <h2>Extracting comments...</h2>
         <div id="loadingSpinner"></div>
-        <div class="dropdown">
-            <button id="downloadButton">下载选项</button>
-            <div id="downloadOptions" class="dropdown-content">
-                <a href="#" id="downloadExcel">下载Excel文件</a>
-                <a href="#" id="previewExcel">预览Excel文件</a>
-                <a href="#" id="downloadCSV">下载CSV文件</a>
-            </div>
-        </div>
+        <button id="downloadExcelButton" class="action-button">Download Excel File</button>
+        <button id="previewExcelButton" class="action-button">Preview Excel File</button>
+        <button id="downloadCSVButton" class="action-button">Download CSV File</button>
     </div>
 
     <script src="popup.js"></script>

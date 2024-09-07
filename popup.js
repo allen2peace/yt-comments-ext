@@ -5,19 +5,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainView = document.getElementById('mainView');
     const extractionView = document.getElementById('extractionView');
     const loadingSpinner = document.getElementById('loadingSpinner');
-    const downloadButton = document.getElementById('downloadButton');
-    const downloadOptions = document.getElementById('downloadOptions');
-    const downloadExcel = document.getElementById('downloadExcel');
-    const previewExcel = document.getElementById('previewExcel');
-    const downloadCSV = document.getElementById('downloadCSV');
+    const downloadExcelButton = document.getElementById('downloadExcelButton');
+    const previewExcelButton = document.getElementById('previewExcelButton');
+    const downloadCSVButton = document.getElementById('downloadCSVButton');
 
     videoUrlInput.addEventListener('input', function() {
         startButton.disabled = !this.value.trim();
     });
 
     startButton.addEventListener('click', function() {
-        console.log('Start button clicked');
-        // Add functionality for start button here
+        const inputUrl = videoUrlInput.value.trim();
+        console.log('Start button clicked. Input URL:', inputUrl);
+        
+        if (isValidYoutubeUrl(inputUrl)) {
+            showExtractionView(inputUrl);
+        } else {
+            alert('Please enter a valid YouTube video link.');
+        }
     });
 
     extractButton.addEventListener('click', function() {
@@ -26,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isValidYoutubeUrl(currentUrl)) {
                 showExtractionView(currentUrl);
             } else {
-                alert('请确保当前页面是有效的YouTube视频页面。');
+                alert('Please make sure the current page is a valid YouTube video page.');
             }
         });
     });
@@ -38,10 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
         extractButton.disabled = !isYouTube;
         
         if (!isYouTube) {
-            extractButton.textContent = '当前页面不是YouTube视频';
+            extractButton.textContent = 'Current page is not a YouTube video';
             extractButton.style.backgroundColor = '#cccccc';
         } else {
-            extractButton.textContent = '提取当前视频';
+            extractButton.textContent = 'Extract Current Video';
             extractButton.style.backgroundColor = '#008CBA';
         }
     });
@@ -50,44 +54,57 @@ document.addEventListener('DOMContentLoaded', function() {
         mainView.style.display = 'none';
         extractionView.style.display = 'block';
         
+        const loadingText = document.querySelector('#extractionView h2');
+        loadingText.textContent = 'Extracting Comments...';
+        
+        // Initially hide buttons, only show loading animation
+        downloadExcelButton.style.display = 'none';
+        previewExcelButton.style.display = 'none';
+        downloadCSVButton.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+        
         const apiUrl = `https://yt-comments-434608.ue.r.appspot.com/api/commentsFile?url=${encodeURIComponent(videoUrl)}`;
         fetch(apiUrl, { mode: 'no-cors' })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('网络响应不正常');
+                    throw new Error('Network response was not ok');
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('API响应:', data);
+                console.log('API response:', data);
                 loadingSpinner.style.display = 'none';
-                downloadButton.style.display = 'block';
+                
+                // Update text
+                loadingText.textContent = 'Completed! Ready to Download';
+                
+                // Show buttons after loading is complete
+                downloadExcelButton.style.display = 'block';
+                previewExcelButton.style.display = 'block';
+                downloadCSVButton.style.display = 'block';
 
                 const excelFileUrl = data.url;
                 const previewUrlWithOfficeViewer = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(excelFileUrl)}`;
 
-                const csvFileUrl = data.csvUrl; // 假设API也返回了CSV文件的URL
+                const csvFileUrl = data.csvUrl; // Assuming API also returns CSV file URL
 
-                downloadButton.addEventListener('click', function() {
-                    downloadOptions.classList.toggle('show');
+                downloadExcelButton.addEventListener('click', function() {
+                    downloadFile(excelFileUrl, 'comments_data.xlsx');
                 });
 
-                downloadExcel.addEventListener('click', function() {
-                    downloadFile(excelFileUrl, '评论数据.xlsx');
+                previewExcelButton.addEventListener('click', function() {
+                    chrome.tabs.create({ url: previewUrlWithOfficeViewer });
                 });
 
-                previewExcel.addEventListener('click', function() {
-                    window.open(previewUrlWithOfficeViewer, '_blank');
-                });
-
-                downloadCSV.addEventListener('click', function() {
-                    downloadFile(csvFileUrl, '评论数据.csv');
+                downloadCSVButton.addEventListener('click', function() {
+                    downloadFile(csvFileUrl, 'comments_data.csv');
                 });
             })
             .catch(error => {
-                console.error('调用API时发生错误:', error);
+                console.error('Error calling API:', error);
                 loadingSpinner.style.display = 'none';
-                alert('提取评论时发生错误，请稍后重试。');
+                loadingText.textContent = 'Error extracting comments. Please try again later.';
+                alert('Error extracting comments. Please try again later.');
             });
     }
 
@@ -100,21 +117,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveAs: false
             }, function(downloadId) {
                 if (chrome.runtime.lastError) {
-                    console.error('下载出错:', chrome.runtime.lastError);
-                    alert('下载文件时发生错误，请稍后重试。');
+                    console.error('Download error:', chrome.runtime.lastError);
+                    alert('Error downloading file. Please try again later.');
                 } else {
-                    console.log('文件下载已开始，下载ID:', downloadId);
+                    console.log('File download started, Download ID:', downloadId);
                 }
             });
         } else {
-            console.error('chrome.downloads API 不可用');
-            alert('下载功能不可用，请确保您使用的是最新版本的Chrome浏览器。');
-            // 作为备选方案，我们可以尝试打开URL
-            window.open(url, '_blank');
+            console.error('chrome.downloads API is not available');
+            alert('Download function is not available. Please make sure you are using the latest version of Chrome browser.');
+            // As a fallback, we can try to open the URL
+            chrome.tabs.create({ url: url });
         }
     }
 
-    // 点击页面其他地方时关闭下拉菜单
+    // Clicking outside the menu closes it
     window.onclick = function(event) {
         if (!event.target.matches('#downloadButton')) {
             if (downloadOptions.classList.contains('show')) {
